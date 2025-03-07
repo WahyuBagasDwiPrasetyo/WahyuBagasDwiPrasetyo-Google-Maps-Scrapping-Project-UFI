@@ -1,41 +1,40 @@
-# Google Maps Scraping Desktop App
+## Aplikasi Desktop Scraping Google Maps - United Farmatic Indonesia Internship Project
 
-This is a desktop application built for scraping data from Google Maps. It is developed using Electron, React JS, Puppeteer, and Vite.
-![image](https://raw.githubusercontent.com/SeptiawanAjiP/google-maps-scrapping-app/master/image.jpeg)
+Aplikasi ini merupakan proyek website yang saya kembangkan selama magang di **United Farmatic Indonesia**. Aplikasi ini dirancang sebagai perangkat lunak desktop untuk melakukan scraping data dari Google Maps. Dikembangkan menggunakan **Electron, React JS, Puppeteer, dan Vite**, aplikasi ini memungkinkan pengguna untuk mengambil data bisnis atau lokasi berdasarkan kata kunci pencarian yang dimasukkan.
 
-## Installation
+### Installation
+Untuk menginstal aplikasi, ikuti langkah-langkah berikut:
 
-Follow these steps to install the application:
-
-1. Clone the repository:
-
-    ```bash
-    https://github.com/SeptiawanAjiP/google-maps-scrapping-app
-    ```
-
-2. Navigate to the project directory:
-
-    ```bash
-    cd your-project
-    ```
-
-3. Install dependencies:
-
-    ```bash
-    npm install
-    ```
-
-## Usage
-After installing the dependencies, you can run the application using the following command:
+1. **Clone Repository**
    ```bash
-    npm run dev
-```
-## How to Use
-1. Once the application is launched, enter the desired search query in the input field.
-2. Press the "Search" button to initiate the scraping process.
-3. Wait for the scraping to complete. The results will be displayed in a table format.
+   git clone https://github.com/WahyuBagasDwiPrasetyo-Google-Maps-Scrapping-Project-UFI
+   ```
 
-## Important Note
-Use responsibly and be mindful of Google's terms of service regarding web scraping.
-## To-Do List
-soon ...
+2. **Masuk ke Direktori Proyek**
+   ```bash
+   cd your-project
+   ```
+
+3. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+4. **Run the Application**
+   ```bash
+   npm run dev
+   ```
+
+### Cara Penggunaan
+1. Jalankan aplikasi.
+2. Masukkan kata kunci pencarian di kolom input.
+3. Klik tombol **"Search"** untuk memulai proses scraping.
+4. Tunggu hingga proses selesai. Data hasil scraping akan ditampilkan dalam format tabel.
+
+### Catatan Penting
+Harap gunakan aplikasi ini dengan bijak dan patuhi **ketentuan layanan Google** terkait web scraping. Penggunaan yang tidak sesuai dapat melanggar kebijakan Google.
+
+### Pengembangan Selanjutnya
+Aplikasi ini akan terus dikembangkan dengan berbagai fitur tambahan yang akan diumumkan pada versi mendatang.
+
+Untuk bantuan dan dukungan teknis, silakan menghubungi melalui email: **wahyubagas.smkWgmail.com**
