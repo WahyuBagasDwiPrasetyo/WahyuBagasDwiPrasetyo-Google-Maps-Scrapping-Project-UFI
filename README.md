@@ -1,4 +1,4 @@
-kaku banget ini : ## Aplikasi Desktop Scraping Google Maps - United Farmatic Indonesia Internship Project
+## Aplikasi Desktop Scraping Google Maps - United Farmatic Indonesia Internship Project
 
 Aplikasi ini merupakan proyek website yang saya kembangkan selama magang di **United Farmatic Indonesia**. Aplikasi ini dirancang sebagai perangkat lunak desktop untuk melakukan scraping data dari Google Maps. Dikembangkan menggunakan **Electron, React JS, Puppeteer, dan Vite**, aplikasi ini memungkinkan pengguna untuk mengambil data bisnis atau lokasi berdasarkan kata kunci pencarian yang dimasukkan.
 
