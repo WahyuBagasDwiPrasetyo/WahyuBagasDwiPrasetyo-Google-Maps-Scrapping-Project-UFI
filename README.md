@@ -37,4 +37,4 @@ Harap gunakan aplikasi ini dengan bijak dan patuhi **ketentuan layanan Google** 
 ### Pengembangan Selanjutnya
 Aplikasi ini akan terus dikembangkan dengan berbagai fitur tambahan yang akan diumumkan pada versi mendatang.
 
-Untuk bantuan dan dukungan teknis, silakan menghubungi melalui email: **wahyubagas.smkWgmail.com**
+Untuk bantuan dan dukungan teknis, silakan menghubungi melalui email: **wahyubagas.smk@gmail.com**
