@@ -134,21 +134,30 @@ async function searchGoogleMaps() {
       const website = parent.find('a[data-value="Website"]').attr("href");
       const storeName = parent.find("div.fontHeadlineSmall").text();
       const ratingText = parent.find("span.fontBodyMedium > span").attr("aria-label");
-
+    
       const bodyDiv = parent.find("div.fontBodyMedium").first();
       const children = bodyDiv.children();
       const lastChild = children.last();
       const firstOfLast = lastChild.children().first();
       const lastOfLast = lastChild.children().last();
-
+    
       // Improved placeId extraction using regex
       const placeId = url?.match(/ChI[^?]+/)?.[0] || "";
-      
+    
+      // Extract latitude and longitude using regex
+      let latitude = null;
+      let longitude = null;
+      const coordMatch = url?.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (coordMatch) {
+        latitude = parseFloat(coordMatch[1]);
+        longitude = parseFloat(coordMatch[2]);
+      }
+    
       index++;
       const businessData = {
         index,
         storeName,
-        placeId, // Using the safer regex extraction
+        placeId,
         address: firstOfLast?.text()?.split("·")?.[1]?.trim(),
         category: firstOfLast?.text()?.split("·")?.[0]?.trim(),
         phone: lastOfLast?.text()?.split("·")?.[1]?.trim(),
@@ -159,11 +168,13 @@ async function searchGoogleMaps() {
         numberOfReviews: ratingText?.split("Bintang")?.[1]?.replace("Ulasan", "")?.trim()
           ? Number(ratingText?.split("Bintang")?.[1]?.replace("Ulasan", "")?.trim())
           : null,
+        latitude,  // Add extracted latitude
+        longitude, // Add extracted longitude
       };
-      
+    
       businesses.push(businessData);
-      console.log(`Processed business: ${businessData.storeName}`);
-    });
+      console.log(`Processed business: ${businessData.storeName}, Coordinates: (${latitude}, ${longitude})`);
+    });    
     
     console.log("Scraping finished. Total businesses:", businesses.length);
     return businesses;
@@ -194,34 +205,37 @@ async function saveToDatabase(businesses) {
     console.log("Saving data to database...");
 
     const insertQuery = `INSERT INTO businesses 
-      (storeName, placeId, address, category, phone, googleUrl, bizWebsite, ratingText, stars, numberOfReviews) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-      
-    for (const business of businesses) {
-      console.log("Saving to database:", { 
-        storeName: business.storeName, 
-        placeId: business.placeId, 
-        address: business.address 
-      });
-      
-      try {
-        await pool.execute(insertQuery, [
-          business.storeName,
-          business.placeId,
-          business.address,
-          business.category,
-          business.phone,
-          business.googleUrl,
-          business.bizWebsite,
-          business.ratingText,
-          business.stars,
-          business.numberOfReviews,
-        ]);
-        console.log(`✅ Business data for ${business.storeName} saved successfully`);
-      } catch (dbError) {
-        console.error(`❌ Failed to save ${business.storeName}:`, dbError);
-      }
+    (storeName, placeId, address, category, phone, googleUrl, bizWebsite, ratingText, stars, numberOfReviews, longitude, latitude) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+  for (const business of businesses) {
+    console.log("Saving to database:", { 
+      storeName: business.storeName, 
+      placeId: business.placeId, 
+      address: business.address 
+    });
+  
+    try {
+      await pool.execute(insertQuery, [
+        business.storeName,
+        business.placeId,
+        business.address,
+        business.category,
+        business.phone,
+        business.googleUrl,
+        business.bizWebsite,
+        business.ratingText,
+        business.stars,
+        business.numberOfReviews,
+        business.longitude, 
+        business.latitude   
+      ]);
+      console.log(`Business data for ${business.storeName} saved successfully`);
+    } catch (dbError) {
+      console.error(`Failed to save ${business.storeName}:`, dbError);
     }
+  }
+  
 
     console.log("All data saved to database");
     
