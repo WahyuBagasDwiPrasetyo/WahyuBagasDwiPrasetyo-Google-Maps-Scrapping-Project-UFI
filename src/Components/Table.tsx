@@ -20,8 +20,11 @@ interface TableProps {
   places: Place[];
 }
 
+const ITEMS_PER_PAGE = 10;
+
 const Table: React.FC<TableProps> = ({ places }) => {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   if (!places) {
     return <div>No data available</div>;
@@ -45,6 +48,15 @@ const Table: React.FC<TableProps> = ({ places }) => {
   const handleCloseDetail = () => {
     setSelectedPlace(null);
   };
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentItems = places.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(places.length / ITEMS_PER_PAGE);
 
   return (
     <div className="overflow-x-auto">
@@ -87,10 +99,10 @@ const Table: React.FC<TableProps> = ({ places }) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {places.map((item, index) => (
+              {currentItems.map((item, index) => (
                 <tr key={item.storeName}>
                   <td className="px-6 py-4 whitespace-normal">
-                    <div className="text-sm text-gray-900">{index + 1}</div>
+                    <div className="text-sm text-gray-900">{indexOfFirstItem + index + 1}</div>
                   </td>
                   <td className="px-6 py-4">
                     <a href={item.googleUrl} target="_blank" rel="noreferrer">
@@ -119,6 +131,31 @@ const Table: React.FC<TableProps> = ({ places }) => {
               ))}
             </tbody>
           </table>
+          <div className="pagination mt-4 flex justify-center">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded mr-2"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+              <button
+                key={pageNumber}
+                onClick={() => handlePageChange(pageNumber)}
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded mr-2 ${currentPage === pageNumber ? 'bg-blue-700' : ''}`}
+              >
+                {pageNumber}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-4 rounded"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 
