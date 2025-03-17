@@ -1,8 +1,8 @@
 ## Aplikasi Desktop Scraping Google Maps - United Farmatic Indonesia Internship Project
 
-Aplikasi ini adalah proyek website yang kubuat selama magang di **United Farmatic Indonesia**. Dibuat sebagai software desktop untuk nyedot data dari Google Maps, aplikasi ini keren banget! Dibangun pakai **Electron, React JS, Puppeteer, sama Vite**, tool ini bisa ngumpulin data bisnis atau lokasi berdasarkan kata kunci yang kamu ketik.
+Aplikasi ini adalah proyek website yang kubuat selama magang di **United Farmatic Indonesia**. Dibuat sebagai software desktop untuk Ekstraksi Data Google Maps! Dibangun pakai **Electron, React JS, Puppeteer, sama Vite**, tool ini bisa ngumpulin data bisnis atau lokasi berdasarkan kata kunci yang kamu ketik.
 
-### Teknologi yang Digunakan
+### Teknologi yang Digunakan Selama Development
 
 - **Electron**: Framework yang memungkinkan aplikasi web berjalan sebagai aplikasi desktop. Dengan Electron, aplikasi ini bisa digunakan di Windows, macOS, dan Linux tanpa perlu mengakses browser.
 
