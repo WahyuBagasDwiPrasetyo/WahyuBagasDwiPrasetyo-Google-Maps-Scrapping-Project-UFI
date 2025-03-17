@@ -30,6 +30,8 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<Partial<Place>>({});
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const [confirmation, setConfirmation] = useState<{ action: string; data?: any } | null>(null);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -96,6 +98,8 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
     } else {
       setSortType(newSortType);
     }
+    // Preserve the current page when sorting
+    setCurrentPage(currentPage);
   };
 
   const startEditing = (placeId: string) => {
@@ -118,29 +122,127 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
     });
   };
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
+    setConfirmation({ action: "edit" });
+  };
+
+  const confirmEdit = async () => {
     if (editingId && Object.keys(editedData).length > 0) {
       const updatedPlace = places.find(p => p.placeId === editingId);
       if (updatedPlace) {
         const finalData = { ...updatedPlace, ...editedData };
         onEdit(finalData as Place);
-        
+
+        // Send updated data to the backend
+        try {
+          await window.ipcRenderer.invoke('update-place', finalData);
+          console.log('Data successfully updated in the database');
+        } catch (error) {
+          console.error('Failed to update data in the database:', error);
+        }
+
         setEditingId(null);
         setEditedData({});
       }
     }
+    setConfirmation(null);
   };
 
   const handleDeleteClick = (placeId: string) => {
-    if (window.confirm("Are you sure you want to delete this place?")) {
-      onDelete(placeId);
+    setConfirmation({ action: "delete", data: placeId });
+  };
+
+  const confirmDelete = () => {
+    if (confirmation?.data) {
+      onDelete(confirmation.data);
+    }
+    setConfirmation(null);
+  };
+
+  const toggleSelectRow = (placeId: string) => {
+    setSelectedRows(prev => {
+      const updated = new Set(prev);
+      if (updated.has(placeId)) {
+        updated.delete(placeId);
+      } else {
+        updated.add(placeId);
+      }
+      return updated;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedRows.size === currentItems.length) {
+      setSelectedRows(new Set());
+    } else {
+      const allIds = currentItems.map(item => item.placeId);
+      setSelectedRows(new Set(allIds));
     }
   };
 
-  let sortedPlaces = [...places];
+  const deleteSelectedRows = () => {
+    const remainingPlaces = sortedPlaces.filter(place => !selectedRows.has(place.placeId));
+    setSelectedRows(new Set());
+    remainingPlaces.forEach(place => onEdit(place)); // Update the parent component with each place
+  };
+
+  const exportSelectedToExcel = () => {
+    setConfirmation({ action: "download" });
+  };
+
+  const confirmExport = () => {
+    const exportData = sortedPlaces
+      .filter(place => !selectedRows.has(place.placeId))
+      .map(place => ({
+        No: place.index,
+        Name: place.storeName,
+        Address: place.address,
+        Category: place.category,
+        Rating: extractRating(place.ratingText),
+        Reviews: extractReviews(place.ratingText),
+        Phone: place.phone || 'N/A',
+        Website: place.bizWebsite || 'N/A',
+        GoogleMaps: place.googleUrl,
+        Latitude: place.latitude,
+        Longitude: place.longitude
+      }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+
+    saveAs(blob, "filtered_data.xlsx");
+    setConfirmation(null);
+  };
+
+  // Remove duplicates based on placeId
+  const removeDuplicates = (places: Place[]) => {
+    const uniquePlaces = new Map<string, Place>();
+    places.forEach(place => {
+      uniquePlaces.set(place.placeId, place);
+    });
+    return Array.from(uniquePlaces.values());
+  };
+
+  let sortedPlaces = removeDuplicates([...places]);
+
+  // Filter places based on the search term
+  const filteredPlaces = sortedPlaces.filter(place =>
+    place.storeName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate indices for pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  // Determine the data to sort
+  let currentItems = itemsPerPage === -1 ? filteredPlaces : filteredPlaces.slice(indexOfFirstItem, indexOfLastItem);
 
   if (sortType) {
-    sortedPlaces.sort((a, b) => {
+    currentItems.sort((a, b) => {
       switch (sortType) {
         case 'highestRating':
           return extractRating(b.ratingText) - extractRating(a.ratingText);
@@ -160,13 +262,7 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
     });
   }
 
-  const filteredPlaces = Array.from(new Set(sortedPlaces.filter(place =>
-    place.storeName.toLowerCase().includes(searchTerm.toLowerCase())
-  )));
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = itemsPerPage === -1 ? filteredPlaces : filteredPlaces.slice(indexOfFirstItem, indexOfLastItem);
+  // Recalculate total pages
   const totalPages = itemsPerPage === -1 ? 1 : Math.ceil(filteredPlaces.length / itemsPerPage);
 
   return (
@@ -174,7 +270,17 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
       <div className="inline-block min-w-full">
         <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
           <div className="flex items-center justify-between p-4">
-            <button onClick={exportToExcel} className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-4 rounded">Export to Excel</button>
+            <div className="flex space-x-2">
+              <button onClick={exportToExcel} className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-4 rounded">
+                Download Semua Data
+              </button>
+              <button onClick={exportSelectedToExcel} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded">
+                Download Data Terpilih
+              </button>
+            </div>
+            <button onClick={deleteSelectedRows} className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded">
+              Hapus Data Terpilih
+            </button>
           </div>
           <div className="px-4">
             <input
@@ -188,6 +294,13 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
           <table className="min-w-full divide-y divide-gray-200 mt-3">
             <thead className="bg-gray-50">
               <tr>
+                <th scope="col" className="px-6 py-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.size === currentItems.length}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nama
@@ -230,6 +343,13 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.map((item, index) => (
                 <tr key={item.placeId}>
+                  <td className="px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.has(item.placeId)}
+                      onChange={() => toggleSelectRow(item.placeId)}
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-normal">
                     <div className="text-sm text-gray-900">{indexOfFirstItem + index + 1}</div>
                   </td>
@@ -270,7 +390,9 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
                         className="w-full px-2 py-1 border border-gray-300 rounded"
                       />
                     ) : (
-                      <div className="text-sm text-gray-900">{item.phone || 'N/A'}</div>
+                      <div className="text-sm text-gray-900">
+                        {item.phone && item.phone.trim() !== '' ? item.phone : 'N/A'}
+                      </div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-normal">
@@ -309,7 +431,7 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
                           onClick={() => handleDeleteClick(item.placeId)} 
                           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                         >
-                          Delete
+                          Hapus
                         </button>
                       </div>
                     )}
@@ -354,7 +476,11 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
                 <button
                   key={pageNumber}
                   onClick={() => handlePageChange(pageNumber)}
-                  className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded mr-2 ${currentPage === pageNumber ? 'bg-blue-700' : ''}`}
+                  className={`font-bold py-1 px-4 rounded mr-2 ${
+                    currentPage === pageNumber
+                      ? 'bg-yellow-500 text-white' // Change active page color to yellow
+                      : 'bg-blue-500 hover:bg-blue-700 text-white'
+                  }`}
                 >
                   {pageNumber}
                 </button>
@@ -381,7 +507,7 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
               <p className="mb-2"><strong>Kategori:</strong> {selectedPlace.category}</p>
               <p className="mb-2"><strong>Rating:</strong> 🌟 {extractRating(selectedPlace.ratingText)}</p>
               <p className="mb-2"><strong>Jumlah Ulasan:</strong> {extractReviews(selectedPlace.ratingText)}</p>
-              <p className="mb-2"><strong>Telepon:</strong> {selectedPlace.phone || 'N/A'}</p>
+              <p className="mb-2"><strong>Telepon:</strong> {selectedPlace.phone && selectedPlace.phone.trim() !== '' ? selectedPlace.phone : 'N/A'}</p>
               <p className="mb-2"><strong>Website:</strong> {selectedPlace.bizWebsite ? (
                 <a href={selectedPlace.bizWebsite} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
                   {selectedPlace.bizWebsite}
@@ -398,6 +524,36 @@ const Table: React.FC<TableProps> = ({ places, onEdit, onDelete }) => {
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmation && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-xl font-semibold mb-4">Konfirmasi</h2>
+            <p className="mb-4">
+              {confirmation.action === "download" && "Apakah Anda yakin ingin mendownload data terpilih?"}
+              {confirmation.action === "delete" && "Apakah Anda yakin ingin menghapus data ini?"}
+              {confirmation.action === "edit" && "Apakah Anda yakin ingin menyimpan perubahan data ini?"}
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button onClick={() => setConfirmation(null)} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded">
+                Batalkan
+              </button>
+              <button
+                onClick={
+                  confirmation.action === "download"
+                    ? confirmExport
+                    : confirmation.action === "delete"
+                    ? confirmDelete
+                    : confirmEdit
+                }
+                className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded"
+              >
+                Konfirmasi
+              </button>
             </div>
           </div>
         </div>

@@ -5,6 +5,10 @@ import * as cheerio from "cheerio"; // Import cheerio with named export
 
 export default async function searchGoogleMaps(query: string): Promise<any[]> {
   try {
+    if (typeof query !== "string" || !query.trim()) {
+      throw new Error("Invalid query parameter. It must be a non-empty string.");
+    }
+
     puppeteerExtra.use(stealthPlugin());
 
     const browser = await puppeteerExtra.launch({
@@ -16,9 +20,11 @@ export default async function searchGoogleMaps(query: string): Promise<any[]> {
     const page = await browser.newPage();
 
     try {
-      await page.goto(`https://www.google.com/maps/search/${query.split(" ").join("+")}`);
+      const queryUrl = `https://www.google.com/maps/search/${query.split(" ").join("+")}`;
+      await page.goto(queryUrl);
     } catch (error) {
-      console.log("Error opening the page:", error);
+      console.error("Error opening the page:", error);
+      throw error;
     }
 
     async function autoScroll(page: any): Promise<void> {
@@ -118,9 +124,11 @@ export default async function searchGoogleMaps(query: string): Promise<any[]> {
       const category = sanitizeText(firstOfLast?.text()?.split("·")?.[0]?.trim() || "");
       const phone = sanitizeText(lastOfLast?.text()?.split("·")?.[1]?.trim() || "");
 
+      const placeId = url ? `ChI${url.split("?")[0].split("ChI")[1]}` : null;
+
       const bizData = {
         storeName,
-        placeId: url ? `ChI${url.split("?")[0].split("ChI")[1]}` : null,
+        placeId,
         address,
         category,
         phone,

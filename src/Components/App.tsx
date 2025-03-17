@@ -4,7 +4,6 @@ import reactLogo from "../assets/react.svg";
 import electron from "../assets/electron.svg.png";
 import viteLogo from "/electron-vite.animate.svg";
 import Table from "./Table";
-import Input from "./Input";
 
 interface Place {
   index: number;
@@ -22,11 +21,20 @@ interface Place {
 
 function App() {
   const [results, setResults] = useState<Place[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedRegency, setSelectedRegency] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedVillage, setSelectedVillage] = useState("");
+  const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([]);
+  const [regencies, setRegencies] = useState<{ id: string; name: string }[]>([]);
+  const [districts, setDistricts] = useState<{ id: string; name: string }[]>([]);
+  const [villages, setVillages] = useState<{ id: string; name: string }[]>([]);
+  const [searchQuery, setSearchQuery] = useState(""); // Add state for search query
 
   useEffect(() => {
     window.ipcRenderer.on("scraping-done", (_event, results) => {
       console.log('Scraping done:', results);
-      setResults(results);
+      setResults((prevResults) => [...prevResults, ...results]); // Gabungkan data lama dengan data baru
     });
 
     window.ipcRenderer.on("scraping-error", (_event, error) => {
@@ -34,6 +42,50 @@ function App() {
       // Handle error as needed
     });
   }, []);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      const result = await window.ipcRenderer.invoke("get-provinces");
+      setProvinces(result);
+    };
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    if (selectedProvince) {
+      const fetchRegencies = async () => {
+        const result = await window.ipcRenderer.invoke("get-regencies", selectedProvince);
+        setRegencies(result);
+      };
+      fetchRegencies();
+    } else {
+      setRegencies([]);
+    }
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    if (selectedRegency) {
+      const fetchDistricts = async () => {
+        const result = await window.ipcRenderer.invoke("get-districts", selectedRegency);
+        setDistricts(result);
+      };
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedRegency]);
+
+  useEffect(() => {
+    if (selectedDistrict) {
+      const fetchVillages = async () => {
+        const result = await window.ipcRenderer.invoke("get-villages", selectedDistrict);
+        setVillages(result);
+      };
+      fetchVillages();
+    } else {
+      setVillages([]);
+    }
+  }, [selectedDistrict]);
 
   const handleEdit = (updatedPlace: Place) => {
     console.log("Edit place:", updatedPlace);
@@ -52,7 +104,43 @@ function App() {
     setResults((prevPlaces) => prevPlaces.filter((place) => place.placeId !== placeId));
 
     // Send the placeId to the main process to delete it from the database
-    window.ipcRenderer.send("delete-place", placeId);
+    window.ipcRenderer.invoke("delete-place", placeId)
+      .then(() => console.log(`Place with ID ${placeId} deleted from database.`))
+      .catch((error) => console.error(`Failed to delete place with ID ${placeId} from database:`, error));
+  };
+
+  const handleScraping = () => {
+    if (!searchQuery.trim()) {
+      alert("Please enter a search query.");
+      return;
+    }
+  
+    if (!selectedProvince || !selectedRegency) {
+      alert("Please select both Province and Regency before starting the scraping process.");
+      return;
+    }
+  
+    // Build the full query by concatenating the search query with dropdown values
+    const fullQuery = [
+      searchQuery.trim(),
+      provinces.find((p) => p.id === selectedProvince)?.name || "",
+      regencies.find((r) => r.id === selectedRegency)?.name || "",
+      districts.find((d) => d.id === selectedDistrict)?.name || "",
+      villages.find((v) => v.id === selectedVillage)?.name || "",
+    ]
+      .filter(Boolean) // Remove empty values
+      .join(" "); // Join with spaces
+  
+    const filters = {
+      query: fullQuery,
+      province: selectedProvince,
+      regency: selectedRegency,
+      district: selectedDistrict || null,
+      village: selectedVillage || null,
+    };
+  
+    console.log("Starting scraping with filters:", filters);
+    window.ipcRenderer.send("start-scraping", filters);
   };
 
   return (
@@ -100,7 +188,77 @@ function App() {
       </div>
       
       <div className="flex justify-center my-4">
-        <Input />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Enter search query"
+          className="border border-gray-300 rounded px-4 py-2 w-1/2"
+        />
+      </div>
+
+      <div className="flex justify-center my-4 space-x-2">
+        <select
+          value={selectedProvince}
+          onChange={(e) => setSelectedProvince(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
+          required
+        >
+          <option value="">Pilih Provinsi</option>
+          {provinces.map((province) => (
+            <option key={province.id} value={province.id}>
+              {province.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={selectedRegency}
+          onChange={(e) => setSelectedRegency(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
+          disabled={!selectedProvince}
+          required
+        >
+          <option value="">Pilih Kabupaten/Kota</option>
+          {regencies.map((regency) => (
+            <option key={regency.id} value={regency.id}>
+              {regency.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={selectedDistrict}
+          onChange={(e) => setSelectedDistrict(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
+          disabled={!selectedRegency}
+        >
+          <option value="">Pilih Kecamatan</option>
+          {districts.map((district) => (
+            <option key={district.id} value={district.id}>
+              {district.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={selectedVillage}
+          onChange={(e) => setSelectedVillage(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
+          disabled={!selectedDistrict}
+        >
+          <option value="">Pilih Desa/Kelurahan</option>
+          {villages.map((village) => (
+            <option key={village.id} value={village.id}>
+              {village.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex justify-center my-4">
+        <button
+          onClick={handleScraping}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Mulai Ambil Data
+        </button>
       </div>
       <div className="flex justify-center items-center my-8">
         <Table places={results} onEdit={handleEdit} onDelete={handleDelete} />

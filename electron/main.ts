@@ -117,9 +117,54 @@ ipcMain.handle('get-villages', async (_event, districtCode) => {
 // Handler untuk scraping
 ipcMain.on("start-scraping", async (event, arg) => {
     try {
-        const results = await searchGoogleMaps(arg);
+        if (typeof arg.query !== "string" || !arg.query.trim()) {
+            throw new Error("Invalid query parameter. It must be a non-empty string.");
+        }
+
+        const results = await searchGoogleMaps(arg.query); // Pass the full query string
         event.reply("scraping-done", results);
     } catch (error) {
-        event.reply("scraping-error", error);
+        console.error("Error during scraping:", error);
+        event.reply("scraping-error", error instanceof Error ? error.message : "An unknown error occurred");
     }
+});
+
+ipcMain.handle("update-place", async (_event, updatedPlace) => {
+  try {
+    const {
+      storeName,
+      placeId,
+      address,
+      category,
+      phone,
+      googleUrl,
+      bizWebsite,
+      ratingText,
+      latitude,
+      longitude,
+    } = updatedPlace;
+
+    // Update the database with the new data
+    await pool.query(
+      `UPDATE businesses 
+       SET storeName = ?, address = ?, category = ?, phone = ?, googleUrl = ?, bizWebsite = ?, ratingText = ?, latitude = ?, longitude = ? 
+       WHERE placeId = ?`,
+      [storeName, address, category, phone, googleUrl, bizWebsite, ratingText, latitude, longitude, placeId]
+    );
+
+    console.log(`Place with ID ${placeId} successfully updated in the database.`);
+  } catch (error) {
+    console.error("Error updating place in the database:", error);
+    throw error;
+  }
+});
+
+ipcMain.handle("delete-place", async (_event, placeId) => {
+  try {
+    await pool.query("DELETE FROM businesses WHERE placeId = ?", [placeId]);
+    console.log(`Place with ID ${placeId} successfully deleted from the database.`);
+  } catch (error) {
+    console.error(`Error deleting place with ID ${placeId} from the database:`, error);
+    throw error;
+  }
 });
