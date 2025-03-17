@@ -8,7 +8,7 @@ Aplikasi ini adalah proyek website yang kubuat selama magang di **United Farmati
 
 - **React JS**: Library JavaScript untuk membangun user interface yang responsif dan interaktif. React membuat tampilan aplikasi jadi smooth dan dinamis.
 
-- **Puppeteer**: Library Node.js yang memberikan API untuk mengontrol Chrome/Chromium. Ini adalah mesin utama yang melakukan scraping data dari Google Maps dengan cara yang efisien.
+- **Puppeteer**: Library Node.js yang memberikan API untuk mengontrol Chrome/Chromium. Ini adalah mesin utama yang melakukan scraping data dari Google Maps Secara Gratis Tanpa Google API.
 
 - **Vite**: Build tool yang super cepat untuk pengembangan frontend. Vite bikin proses development jadi lebih cepat dengan hot module replacement yang instan.
 
@@ -16,7 +16,7 @@ Aplikasi ini adalah proyek website yang kubuat selama magang di **United Farmati
 
 - **Pencarian Fleksibel**: Masukkan berbagai kata kunci untuk mencari bisnis, lokasi, atau tempat di daerah manapun.
 
-- **Ekstraksi Data Komprehensif**: Dapatkan informasi lengkap seperti nama bisnis, alamat, nomor telepon, rating, jumlah review, jam operasional, dan website.
+- **Ekstraksi Data Komprehensif**: Dapatkan informasi lengkap seperti nama bisnis, alamat, nomor telepon, rating, jumlah review, koordinat (longtitude & latitude, dan website.
 
 - **Export Data**: Hasil scraping bisa didownload dalam format CSV atau Excel untuk diolah lebih lanjut.
 
@@ -65,7 +65,7 @@ Aplikasi dilengkapi dengan sistem penanganan error untuk berbagai situasi:
 
 ### Penting Nih!
 
-Pake aplikasi ini yang bijak ya dan patuhi **aturan Google** soal scraping. Jangan sampai melanggar kebijakan mereka. Beberapa hal yang perlu diperhatikan:
+Pake aplikasi ini yang bijak ya dan patuhi **aturan Google** soal scraping. Jangan sampai melanggar kebijakan Cuy Nnanti Kebanned. Beberapa hal yang perlu kamu perhatikan:
 - Batasi jumlah request dalam waktu tertentu
 - Gunakan delay antar request untuk menghindari pembatasan
 - Jangan menggunakan data untuk tujuan yang melanggar hukum
@@ -78,7 +78,6 @@ Aplikasi ini bakal terus dikembangin dengan fitur-fitur baru yang bakal diumumin
 - Fitur scheduling untuk scraping otomatis
 - Dashboard visualisasi data
 - Sistem notifikasi untuk update data baru
-- Filter dan pencarian yang lebih canggih
 
 ### Kontribusi
 
