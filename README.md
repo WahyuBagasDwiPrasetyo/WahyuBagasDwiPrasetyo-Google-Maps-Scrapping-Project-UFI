@@ -1,40 +1,87 @@
 ## Aplikasi Desktop Scraping Google Maps - United Farmatic Indonesia Internship Project
 
-Aplikasi ini merupakan proyek website yang saya kembangkan selama magang di **United Farmatic Indonesia**. Aplikasi ini dirancang sebagai perangkat lunak desktop untuk melakukan scraping data dari Google Maps. Dikembangkan menggunakan **Electron, React JS, Puppeteer, dan Vite**, aplikasi ini memungkinkan pengguna untuk mengambil data bisnis atau lokasi berdasarkan kata kunci pencarian yang dimasukkan.
+Aplikasi ini adalah proyek website yang kubuat selama magang di **United Farmatic Indonesia**. Dibuat sebagai software desktop untuk nyedot data dari Google Maps, aplikasi ini keren banget! Dibangun pakai **Electron, React JS, Puppeteer, sama Vite**, tool ini bisa ngumpulin data bisnis atau lokasi berdasarkan kata kunci yang kamu ketik.
 
-### Installation
-Untuk menginstal aplikasi, ikuti langkah-langkah berikut:
+### Teknologi yang Digunakan
+
+- **Electron**: Framework yang memungkinkan aplikasi web berjalan sebagai aplikasi desktop. Dengan Electron, aplikasi ini bisa digunakan di Windows, macOS, dan Linux tanpa perlu mengakses browser.
+
+- **React JS**: Library JavaScript untuk membangun user interface yang responsif dan interaktif. React membuat tampilan aplikasi jadi smooth dan dinamis.
+
+- **Puppeteer**: Library Node.js yang memberikan API untuk mengontrol Chrome/Chromium. Ini adalah mesin utama yang melakukan scraping data dari Google Maps dengan cara yang efisien.
+
+- **Vite**: Build tool yang super cepat untuk pengembangan frontend. Vite bikin proses development jadi lebih cepat dengan hot module replacement yang instan.
+
+### Fitur Utama
+
+- **Pencarian Fleksibel**: Masukkan berbagai kata kunci untuk mencari bisnis, lokasi, atau tempat di daerah manapun.
+
+- **Ekstraksi Data Komprehensif**: Dapatkan informasi lengkap seperti nama bisnis, alamat, nomor telepon, rating, jumlah review, jam operasional, dan website.
+
+- **Export Data**: Hasil scraping bisa didownload dalam format CSV atau Excel untuk diolah lebih lanjut.
+
+- **UI Ramah Pengguna**: Tampilan yang simpel dan intuitif, cocok buat yang baru mulai sampe yang udah pro.
+
+- **Kustomisasi Pencarian**: Atur parameter pencarian seperti radius, jumlah hasil, dan filter khusus.
+
+### Instalasi
+
+Cara pasangnya gampang:
 
 1. **Clone Repository**
    ```bash
    git clone https://github.com/WahyuBagasDwiPrasetyo-Google-Maps-Scrapping-Project-UFI
    ```
-
-2. **Masuk ke Direktori Proyek**
+2. **Masuk ke Folder Proyek**
    ```bash
    cd your-project
    ```
-
 3. **Install Dependencies**
    ```bash
    npm install
    ```
-
-4. **Run the Application**
+4. **Jalanin Aplikasinya**
    ```bash
    npm run dev
    ```
 
-### Cara Penggunaan
-1. Jalankan aplikasi.
-2. Masukkan kata kunci pencarian di kolom input.
-3. Klik tombol **"Search"** untuk memulai proses scraping.
-4. Tunggu hingga proses selesai. Data hasil scraping akan ditampilkan dalam format tabel.
+### Cara Pakai
 
-### Catatan Penting
-Harap gunakan aplikasi ini dengan bijak dan patuhi **ketentuan layanan Google** terkait web scraping. Penggunaan yang tidak sesuai dapat melanggar kebijakan Google.
+1. Buka aplikasinya.
+2. Masukin kata kunci yang mau dicari (contoh: "restoran Jakarta", "apotek Bandung").
+3. Atur parameter tambahan jika perlu (radius pencarian, jumlah hasil maksimal).
+4. Klik tombol **"Search"** buat mulai proses scraping.
+5. Tunggu bentar ya. Hasilnya bakal muncul dalam bentuk tabel.
+6. Review datanya dan filter sesuai kebutuhan.
+7. Klik tombol "Export" untuk menyimpan data dalam format yang diinginkan.
 
-### Pengembangan Selanjutnya
-Aplikasi ini akan terus dikembangkan dengan berbagai fitur tambahan yang akan diumumkan pada versi mendatang.
+### Penanganan Error
 
-Untuk bantuan dan dukungan teknis, silakan menghubungi melalui email: **wahyubagas.smk@gmail.com**
+Aplikasi dilengkapi dengan sistem penanganan error untuk berbagai situasi:
+- Koneksi internet terputus
+- Pembatasan akses dari Google
+- Timeout selama proses scraping
+- Format data tidak sesuai
+
+### Penting Nih!
+
+Pake aplikasi ini yang bijak ya dan patuhi **aturan Google** soal scraping. Jangan sampai melanggar kebijakan mereka. Beberapa hal yang perlu diperhatikan:
+- Batasi jumlah request dalam waktu tertentu
+- Gunakan delay antar request untuk menghindari pembatasan
+- Jangan menggunakan data untuk tujuan yang melanggar hukum
+- Hormati hak cipta dan privasi data
+
+### Pengembangan Kedepan
+
+Aplikasi ini bakal terus dikembangin dengan fitur-fitur baru yang bakal diumumin di versi selanjutnya:
+- Integrasi dengan database untuk penyimpanan jangka panjang
+- Fitur scheduling untuk scraping otomatis
+- Dashboard visualisasi data
+- Sistem notifikasi untuk update data baru
+- Filter dan pencarian yang lebih canggih
+
+### Kontribusi
+
+Tertarik untuk berkontribusi? Silakan fork repository dan ajukan pull request dengan perbaikan atau fitur baru yang kamu usulkan!
+
+Butuh bantuan? Langsung aja kontak lewat email: **wahyubagas.smk@gmail.com**
