@@ -1,9 +1,9 @@
-// @ts-ignore: 'React' is declared but its value is never read.
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import reactLogo from "../assets/react.svg";
 import electron from "../assets/electron.svg.png";
 import viteLogo from "/electron-vite.animate.svg";
 import Table from "./Table";
+import LoginRegister from "./LoginRegister"; // Import the new LoginRegister component
 
 interface Place {
   index: number;
@@ -21,6 +21,8 @@ interface Place {
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
+  // Removed unused userRole state
   const [results, setResults] = useState<Place[]>([]);
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedRegency, setSelectedRegency] = useState("");
@@ -148,150 +150,162 @@ function App() {
 
   return (
     <div className="container mx-auto">
-      <div className="flex justify-center items-center my-8">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <a
-              className="mx-4"
-              href="https://electron-vite.github.io"
-              target="_blank"
-            >
-              <img
-                src={electron}
-                className="w-24 h-24 mb-4 mx-auto"
-                alt="Electron logo"
-              />
-            </a>
-            <a className="mx-4" href="https://react.dev" target="_blank">
-              <img
-                src={reactLogo}
-                className="w-24 h-24 mb-4 mx-auto"
-                alt="React logo"
-              />
-            </a>
-            <a
-              className="mx-4"
-              href="https://electron-vite.github.io"
-              target="_blank"
-            >
-              <img
-                src={viteLogo}
-                className="w-24 h-24 mb-4 mx-auto"
-                alt="Vite logo"
-              />
-            </a>
-          </div>
+      {!isAuthenticated ? (
+        <LoginRegister
+          onLogin={() => {
+            setIsAuthenticated(true);
+          }}
+        />
+      ) : (
+        // Show the scraping interface if authenticated
+        <>
+          {/* You can use `userRole` here to customize the interface for admin or user */}
+          <div className="flex justify-center items-center my-8">
+            <div className="text-center">
+              <div className="flex justify-center">
+                <a
+                  className="mx-4"
+                  href="https://electron-vite.github.io"
+                  target="_blank"
+                >
+                  <img
+                    src={electron}
+                    className="w-24 h-24 mb-4 mx-auto"
+                    alt="Electron logo"
+                  />
+                </a>
+                <a className="mx-4" href="https://react.dev" target="_blank">
+                  <img
+                    src={reactLogo}
+                    className="w-24 h-24 mb-4 mx-auto"
+                    alt="React logo"
+                  />
+                </a>
+                <a
+                  className="mx-4"
+                  href="https://electron-vite.github.io"
+                  target="_blank"
+                >
+                  <img
+                    src={viteLogo}
+                    className="w-24 h-24 mb-4 mx-auto"
+                    alt="Vite logo"
+                  />
+                </a>
+              </div>
 
-          <h1 className="text-3xl font-bold mb-2">Google Maps Scrapping</h1>
-          <div className="text-center text-sm text-gray-500">
-            created by IT Intern United Farmatic Indonesia
+              <h1 className="text-3xl font-bold mb-2">Google Maps Scrapping</h1>
+              <div className="text-center text-sm text-gray-500">
+                created by IT Intern United Farmatic Indonesia
+              </div>
+              
+            </div>
           </div>
           
-        </div>
-      </div>
-      
-      <div className="flex justify-center my-4">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Enter search query"
-          className="border border-gray-300 rounded px-4 py-2 w-1/2"
-        />
-      </div>
+          <div className="flex justify-center my-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Enter search query"
+              className="border border-gray-300 rounded px-4 py-2 w-1/2"
+            />
+          </div>
 
-      <div className="flex justify-center my-4 space-x-2">
-        <select
-          value={selectedProvince}
-          onChange={(e) => setSelectedProvince(e.target.value)}
-          className="border border-gray-300 rounded px-4 py-2"
-          required
-        >
-          <option value="">Pilih Provinsi</option>
-          {provinces.map((province) => (
-            <option key={province.id} value={province.id}>
-              {province.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedRegency}
-          onChange={(e) => setSelectedRegency(e.target.value)}
-          className="border border-gray-300 rounded px-4 py-2"
-          disabled={!selectedProvince}
-          required
-        >
-          <option value="">Pilih Kabupaten/Kota</option>
-          {regencies.map((regency) => (
-            <option key={regency.id} value={regency.id}>
-              {regency.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedDistrict}
-          onChange={(e) => setSelectedDistrict(e.target.value)}
-          className="border border-gray-300 rounded px-4 py-2"
-          disabled={!selectedRegency}
-        >
-          <option value="">Pilih Kecamatan</option>
-          {districts.map((district) => (
-            <option key={district.id} value={district.id}>
-              {district.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedVillage}
-          onChange={(e) => setSelectedVillage(e.target.value)}
-          className="border border-gray-300 rounded px-4 py-2"
-          disabled={!selectedDistrict}
-        >
-          <option value="">Pilih Desa/Kelurahan</option>
-          {villages.map((village) => (
-            <option key={village.id} value={village.id}>
-              {village.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex justify-center my-4">
-        <button
-          onClick={handleScraping}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Mulai Ambil Data
-        </button>
-      </div>
-      {showSearchPopup && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg text-center">
-            <p className="mb-4">Please enter a search query.</p>
+          <div className="flex justify-center my-4 space-x-2">
+            <select
+              value={selectedProvince}
+              onChange={(e) => setSelectedProvince(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2"
+              required
+            >
+              <option value="">Pilih Provinsi</option>
+              {provinces.map((province) => (
+                <option key={province.id} value={province.id}>
+                  {province.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedRegency}
+              onChange={(e) => setSelectedRegency(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2"
+              disabled={!selectedProvince}
+              required
+            >
+              <option value="">Pilih Kabupaten/Kota</option>
+              {regencies.map((regency) => (
+                <option key={regency.id} value={regency.id}>
+                  {regency.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedDistrict}
+              onChange={(e) => setSelectedDistrict(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2"
+              disabled={!selectedRegency}
+            >
+              <option value="">Pilih Kecamatan</option>
+              {districts.map((district) => (
+                <option key={district.id} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedVillage}
+              onChange={(e) => setSelectedVillage(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2"
+              disabled={!selectedDistrict}
+            >
+              <option value="">Pilih Desa/Kelurahan</option>
+              {villages.map((village) => (
+                <option key={village.id} value={village.id}>
+                  {village.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex justify-center my-4">
             <button
-              onClick={() => setShowSearchPopup(false)}
+              onClick={handleScraping}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
-              OK
+              Mulai Ambil Data
             </button>
           </div>
-        </div>
-      )}
-      {showPopup && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg text-center">
-            <p className="mb-4">Please select both Province and Regency before starting the scraping process.</p>
-            <button
-              onClick={() => setShowPopup(false)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              OK
-            </button>
+          {showSearchPopup && (
+            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-6 rounded shadow-lg text-center">
+                <p className="mb-4">Please enter a search query.</p>
+                <button
+                  onClick={() => setShowSearchPopup(false)}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+          {showPopup && (
+            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-6 rounded shadow-lg text-center">
+                <p className="mb-4">Please select both Province and Regency before starting the scraping process.</p>
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-center items-center my-8">
+            <Table places={results} onEdit={handleEdit} onDelete={handleDelete} />
           </div>
-        </div>
+        </>
       )}
-      <div className="flex justify-center items-center my-8">
-        <Table places={results} onEdit={handleEdit} onDelete={handleDelete} />
-      </div>
     </div>
   );
 }
