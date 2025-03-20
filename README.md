@@ -39,8 +39,8 @@ Aplikasi ini adalah proyek website selama magang di **United Farmatic Indonesia*
    npm install
    ```
 
-5. **Buat Database Dengan Nama **
-   ```google_maps_scraper" lalu import database nya
+5. **Buat Database Dengan Nama**
+   ```google_maps_scraper" 
    npm run dev
    ```
    
