@@ -24,9 +24,7 @@ Aplikasi ini adalah proyek website selama magang di **United Farmatic Indonesia*
 
 - **Kustomisasi Pencarian**: Atur parameter pencarian seperti radius, jumlah hasil, dan filter khusus.
 
-### Instalasi
-
-Cara pasangnya gampang:
+### Langkah Instalasi
 
 1. **Clone Repository**
    ```bash
@@ -40,6 +38,12 @@ Cara pasangnya gampang:
    ```bash
    npm install
    ```
+
+5. **Buat Database Dengan Nama **
+   ```google_maps_scraper" lalu import database nya
+   npm run dev
+   ```
+   
 4. **Jalanin Aplikasinya**
    ```bash
    npm run dev
