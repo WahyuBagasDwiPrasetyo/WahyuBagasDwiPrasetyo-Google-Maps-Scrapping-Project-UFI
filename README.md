@@ -39,15 +39,18 @@ Aplikasi ini adalah proyek website selama magang di **United Farmatic Indonesia*
    npm install
    ```
 
-5. **Buat Database Dengan Nama**
+4. **Buat Database Dengan Nama**
    ```google_maps_scraper" 
+   google_maps_scraper
+   ```
+   
+5. **Import Databasenya**
+  
+6. **Jalankan Aplikasinya**
+   ```bash
    npm run dev
    ```
    
-4. **Jalanin Aplikasinya**
-   ```bash
-   google_maps_scraper
-   ```
 
 ### Cara Pakai
 
