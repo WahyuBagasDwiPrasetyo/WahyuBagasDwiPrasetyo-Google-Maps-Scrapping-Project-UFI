@@ -46,7 +46,7 @@ Aplikasi ini adalah proyek website selama magang di **United Farmatic Indonesia*
    
 4. **Jalanin Aplikasinya**
    ```bash
-   npm run dev
+   google_maps_scraper
    ```
 
 ### Cara Pakai
